@@ -11,8 +11,6 @@ built, with verbatim excerpts of the core netcode in [`excerpts/`](excerpts/).
 
 https://github.com/user-attachments/assets/9f5df8de-5200-42ff-bfef-e51ad9132349
 
-![The Stashout lobby](media/lobby.png)
-
 ## At a glance
 
 - **~75,000 lines of TypeScript** across a shared simulation (17k), the game server (19k) and the
