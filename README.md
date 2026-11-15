@@ -7,17 +7,20 @@ gone.
 Solo project, July 2026 to present. **The source is private**; this repo is a tour of how it's
 built, with verbatim excerpts of the core netcode in [`excerpts/`](excerpts/).
 
-**90-second pre-alpha demo:** lobby, a raid, looting and extraction.
+![The Stashout lobby between raids, with daily contracts, weather, crew and world chat around the player](media/lobby.webp)
 
-https://github.com/user-attachments/assets/9f5df8de-5200-42ff-bfef-e51ad9132349
+| | |
+|---|---|
+| ![The trader screen, where you buy weapons and gear and load out your character before a raid](media/trader.webp) | ![In a raid at night, with the weapon slots and health bar on screen](media/hud.webp) |
+| The trader, where you buy gear and load out before a raid | In a raid at night |
 
 ## At a glance
 
-- **~75,000 lines of TypeScript** across a shared simulation (17k), the game server (19k) and the
-  client (39k)
-- **869 automated tests** in 83 files, plus a smoke test that drives real WebSocket clients against
+- **~79,000 lines of TypeScript** across a shared simulation (17k), the game server (20k) and the
+  client (42k)
+- **1,584 automated tests** in 148 files, plus smoke tests that drive real WebSocket clients against
   a live server, all on every push
-- **770 commits** since the first on 2026-07-11
+- **1,030 commits** since the first on 2026-07-11
 - **53 weapons, 135 items, 3 kinds of AI** (scavs, rival PMCs, a boss), all defined as data
   tables rather than code
 
@@ -76,12 +79,12 @@ them, using a one-second ring buffer of positions, capped at 8 ticks (~267 ms) s
 be hit long after reaching cover.
 → [`excerpts/lag-compensation.ts`](excerpts/lag-compensation.ts)
 
-**A custom binary protocol.** No JSON for game state. 87 message kinds are bit-packed with
+**A custom binary protocol.** No JSON for game state. 89 message kinds are bit-packed with
 hand-written encoders. Positions are quantized to 16 bits (~11.7 mm across the 768 m map) and
 angles to 12. The client rounds its own aim through the same quantization before simulating, so
 what it predicts with is bit-identical to what the server decodes; skip that and every
 reconciliation replay drifts slightly.
-→ [`excerpts/bitbuffer.ts`](excerpts/bitbuffer.ts) · [`excerpts/quantization.ts`](excerpts/quantization.ts)
+→ [`excerpts/bitbuffer.ts`](excerpts/bitbuffer.ts), [`excerpts/quantization.ts`](excerpts/quantization.ts)
 
 **Tested under bad networks, not just localhost.** Any client can run with simulated latency,
 jitter and packet loss in both directions (`?lag=100&jitter=20&loss=0.02`), and the automated
@@ -104,31 +107,40 @@ browser checks use the same switch.
   refusal is paired with a control proving the legitimate version still works, so a limit can't
   quietly widen into uselessness or tighten onto real players. It has caught three real bugs.
 - **Headless browser checks** load the real client, enter a live raid and audit what actually
-  rendered (fonts, reduced-motion behaviour), in their own workflow so they only run when
+  rendered (fonts, reduced-motion behaviour, text contrast), in their own workflow so they only run when
   rendering can have changed.
-- **GitHub Actions** runs lint, typecheck, tests and both smoke tests on every push, and fails if
-  the generated item art is stale. A regression test has to be
+- **Per-feature smoke tests** cover accounts, mail, moderation, friends, maintenance and
+  spectating, each against its own freshly booted server.
+- **GitHub Actions** runs lint, typecheck, a dependency audit, tests and all eight smoke tests on
+  every push, and fails if the generated item art is stale. A regression test has to be
   seen failing without its fix before the fix lands.
 
 ## What's in the game
 
 - Extraction loop with a persistent stash, grid inventory, gear sets and a death kit
 - PvE: scavs, rival PMCs and a boss, all server-side AI
-- Positional audio: directional gunshots and footsteps, with headsets that change what you hear
-- Day/night cycle and weather, destructible cover, doors, grenades, stairs and underground layers
-- Armour that degrades per hit, with repairs and a trader economy
+- Positional audio built from recordings: directional gunshots, and footsteps that change with
+  what you walk on, with headsets that change what you hear
+- Day/night cycle with lamps and lighting, weather, destructible cover, doors, grenades, stairs
+  and underground layers
+- Armour that degrades per hit, with repairs, a trader economy and a black market
+- Daily quests, account levels, achievements and a rewards track
 - Accounts with Google and Discord sign-in, friends, chat and in-game mail
+- A Discord bot that bridges world chat and carries server status, maintenance, reports and bans
+- Plays on phones, with touch controls
 - Stripe payments with per-account admin permissions
+- In-browser dev tools: a map editor, a game data editor, and a library of everything the game
+  draws, rendered by the game's own painters
 
 ## Stack
 
-TypeScript 5.8 (strict) · PixiJS 8 (WebGL) · Vite 6 · Node.js + uWebSockets.js · Web Audio API ·
-Vitest 3 · Stripe · GitHub Actions. Persistence sits behind a store interface, currently
+TypeScript 5.8 (strict), PixiJS 8 (WebGL), Vite 6, Node.js + uWebSockets.js, Web Audio API,
+Vitest 3, Stripe, GitHub Actions. Persistence sits behind a store interface, currently
 file-backed with atomic writes.
 
 ---
 
-Built by **Anish Gupta** · [LinkedIn](https://www.linkedin.com/in/anishgupta25/) ·
+Built by **Anish Gupta** | [LinkedIn](https://www.linkedin.com/in/anishgupta25/) |
 [GitHub](https://github.com/theflamebeast)
 
 © 2026 Anish Gupta. All rights reserved. The excerpts are here to read, not to reuse.
